@@ -144,13 +144,13 @@ insert into @tblReporteMKPHistorico
 			when '% Cierre' then '% Cierre '+ convert(varchar,  year(th.fecha)) 
 			when 'VENTAS MXN' then 'Ventas en pesos ' + convert(varchar,  year(th.fecha)) 
 			when '% Ventas MXN' then '% ventas en pesos '+ convert(varchar, year(th.fecha)) 
-			when 'VENTAS USD' then 'Ventas en d髄ares ' + convert(varchar,  year(th.fecha)) 
-			when '% Ventas USD' then '% ventas en d髄ares ' + convert(varchar, year(th.fecha))  
+			when 'VENTAS USD' then 'Ventas en d贸lares ' + convert(varchar,  year(th.fecha)) 
+			when '% Ventas USD' then '% ventas en d贸lares ' + convert(varchar, year(th.fecha))  
 			when 'VOLUMEN' then 'VOLUMEN ' + convert(varchar,  year(th.fecha)) as varchar)
 			when 'VOLUMEN MXN' then 'Volumen en pesos ' + convert(varchar,  year(th.fecha)) 
 			when '% VOLUMEN MXN' then '% volumen en pesos '+ convert(varchar, year(th.fecha)) 
-			when 'VOLUMEN USD' then 'Volumen en d髄ares ' + convert(varchar,  year(th.fecha)) 
-			when '% VOLUMEN USD' then '% volumen en d髄ares '+ convert(varchar, year(th.fecha)) 
+			when 'VOLUMEN USD' then 'Volumen en d贸lares ' + convert(varchar,  year(th.fecha)) 
+			when '% VOLUMEN USD' then '% volumen en d贸lares '+ convert(varchar, year(th.fecha)) 
 			when 'VENTA PROMEDIO' then 'VENTA PROMEDIO ' + convert(varchar,  year(th.fecha)) 
 			when 'EFICIENCIA' then 'EFICIENCIA '+ convert(varchar,  year(th.fecha)) 
 			end      
@@ -274,7 +274,7 @@ END
 
 
 
---Consultas ejecutadas en peque馻s aplicaciones
+--Consultas ejecutadas en peque帽as aplicaciones
 RS = ST.executeQuery("SELECT pr.IdPrestamo,pr.FechaPrestamo,ej.ISBN,ej.Titulo,us.Nombre,dp.CantidadPrestada,\n"
                     + "	dd.CantidadDevuelta,(dp.CantidadPrestada-dd.CantidadDevuelta)\n"
                     + " AS CantidadPorDevolver FROM prestamo AS pr\n"
@@ -293,7 +293,17 @@ RS = ST.executeQuery("SELECT pr.IdPrestamo,pr.FechaPrestamo,ej.ISBN,ej.Titulo,us
                     + " INNER JOIN usuario AS us ON us.idUsuario=pr.IdUsuario\n"
                     + " INNER JOIN ejemplar AS ej ON ej.ISBN=dp.ISBN"
                     + " WHERE us.Nombre='" + nombre + "' AND CantidadPrestada>0"
-                    + "	ORDER BY pr.IdPrestamo");					
-
+                    + "	ORDER BY pr.IdPrestamo");	
+		    
+;MERGE INTO user_permission AS Destino
+    USING ( select p.id as permission_id, u.id as user_id from users as u inner join permission as p on p.id = u.id	) as Origen
+            ON Origen.permission_id <> Destino.permission_id
+    --WHEN MATCHED AND Destino.user_id <> Origen.id
+	    --  THEN UPDATE
+	    --  SET Destino.idCatalogoHorario = Origen.idCatalogoHorario, Destino.idHorarioZKT = Origen.idHorario,  Destino.actualizado = 1
+    WHEN NOT MATCHED THEN INSERT
+        VALUES(Origen.user_id,
+        Origen.permission_id)
+    WHEN NOT MATCHED BY SOURCE THEN DELETE;
 
 			
