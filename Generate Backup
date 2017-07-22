@@ -28,3 +28,115 @@ END
  
 CLOSE db_cursor   
 DEALLOCATE db_cursor
+
+
+
+
+declare @tables as varchar(max)
+declare @id int,
+		@count int
+
+set @tables = 'role, users'
+set @id =1
+
+--set @tables = (select Value from dbo.f_nSplit('countries', ',') as a)
+
+--Tabla para guardar los nombres de las tablas que biene por parametro
+create table [dbo].#tempTableParents(ID int identity(1,1), name varchar(200))
+
+create table [dbo].#tempTableChildren(
+	ID int identity(1,1), 
+	foreign_key_name varchar(200),
+	foreign_table varchar(200),
+	foreign_column varchar(200),
+	parent_table varchar(200),
+	parent_column varchar(200),
+	)
+
+	insert into #tempTableParents(name)
+		select * from dbo.f_nSplit(@tables, ',') as a
+
+	select count(*) from #tempTableParents
+	
+	select @count = count(*) from #tempTableParents
+
+	--while @id <= @count
+	--begin
+	--	select name from #tempTableParents
+	--	select @id = @id + 1
+	--end
+
+	insert into #tempTableChildren
+		select cast(f.name as varchar(255)) as foreign_key_name
+		, cast(c.name as varchar(255)) as foreign_table
+		, cast(fc.name as varchar(255)) as foreign_column
+		, cast(p.name as varchar(255)) as parent_table
+		, cast(rc.name as varchar(255)) as parent_column
+		from  sysobjects f
+		inner join sysobjects c on f.parent_obj = c.id
+		inner join sysreferences r on f.id = r.constid
+		inner join sysobjects p on r.rkeyid = p.id
+		inner join syscolumns rc on r.rkeyid = rc.id and r.rkey1 = rc.colid
+		inner join syscolumns fc on r.fkeyid = fc.id and r.fkey1 = fc.colid
+		where f.type = 'F'
+		and p.name in (select name from #tempTableParents)
+
+		
+
+	select * from #tempTableParents
+	select * from #tempTableChildren
+
+	drop table #tempTableParents
+	drop table #tempTableChildren
+ 
+ 
+ 
+ 
+ USE [app-intranet]
+GO
+/****** Object:  StoredProcedure [dbo].[SP_GenerateBackupDB]    Script Date: 22/07/2017 11:37:17 a. m. ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER procedure [dbo].[SP_GenerateBackupDB]
+	--parametros
+	@name as varchar(500),
+	@tables as varchar(max)
+as
+begin
+	--declare @name varchar(50)
+	declare @path as varchar(256)		--ruta para guardar el respaldo
+	declare @fileName as varchar(256)	--nombre del respaldo
+	declare @fileDate as varchar(20)	-- fecha para el adjuntar al nombre del resplado
+	declare @id as int
+	declare @count as int
+	declare @SQL as varchar(max)
+
+	--la ruta donde se guarda el .BAK
+	set @path = 'C:\Respaldos\'
+
+	--Tabla para guardar los nombres de las tablas que biene por parametro
+	create table [dbo].#tempBackup(ID int identity(1,1), name varchar(200))
+		insert into #tempBackup(name)
+			select * from dbo.f_nSplit(@tables, ',') as a
+	
+	select * from #tempBackup
+
+	--format datetime 
+	select @fileDate = REPLACE(REPLACE(REPLACE(CONVERT(VARCHAR(20),GETDATE(),120),'-','_'),' ','_'),':','')
+			select name from master.dbo.sysdatabases
+				where name in(@name) 
+			
+			set @SQL = '
+				use master
+				if NOT(DB_ID (N'''+@name+''') IS NULL) 
+				begin
+					
+				end
+			'	
+	--Se ejecuta el respaldo	
+	set @fileName = @path + @name + '_' + @fileDate + '.bak'
+	backup database @name to disk = @fileName
+	--end
+end
