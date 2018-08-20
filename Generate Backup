@@ -180,12 +180,12 @@ BEGIN
 	declare @filename as varchar(100)
 	
 	--begin try
-	--set @path = (select (R.path ) from rutas R where r.company = 'fiesta')
+	--set @path = (select (R.path ) from rutas R where r.company = ')
 
 	--Ubicación del  archivo .BAK
-	set @path = @path+'\' + 'Fiesta\' +@database+ '.bak'
+	set @path = @path+'\' + 'name' +@database+ '.bak'
 
-	set @filename = @path--'C:\Respaldos\AGI\Intra_AGI_emp.bak'
+	set @filename = @path--'C:\name.bak'
 
 	set @sSQL='
 			IF DB_ID (N'''+@database+''') IS NULL begin
