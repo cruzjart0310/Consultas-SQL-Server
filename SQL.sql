@@ -367,3 +367,274 @@ RS = ST.executeQuery("SELECT pr.IdPrestamo,pr.FechaPrestamo,ej.ISBN,ej.Titulo,us
       }
     }
 </script>
+					       
+var data = [{
+            "id": "1",
+            "nombre": "ITALIA",
+            "padre": "1",
+            "tipo": "integrador",
+            "logo": "efectivo.png",
+            "colectores": []
+        }, {
+            "id": "2",
+            "nombre": "OTRO",
+            "padre": "1",
+            "tipo": "integrador",
+            "logo": "efectivo.png",
+            "colectores": []
+        }, {
+            "id": "3",
+            "nombre": "PRONET",
+            "padre": "1",
+            "tipo": "integrador",
+            "logo": "efectivo.png",
+            "colectores": []
+        }, {
+            "id": "4",
+            "nombre": "TIGO",
+            "padre": "1",
+            "tipo": "integrador",
+            "logo": "efectivo.png",
+            "colectores": [{
+                "id": "100",
+                "nombre": "avon",
+                "logo": "imagen.png"
+            }, {
+                "id": "200",
+                "nombre": "jafra",
+                "logo": "imagen.png"
+            }]
+        }, {
+            "id": "5",
+            "nombre": "PAGO FACIL",
+            "padre": "1",
+            "tipo": "integrador",
+            "logo": "efectivo.png",
+            "colectores": [{
+                "id": "200",
+                "nombre": "jafra",
+                "logo": "imagen.png"
+            }, {
+                "id": "102",
+                "nombre": "avon",
+                "logo": "imagen.png"
+            }]
+        }];
+
+function creationElementHTML(arr, val){
+    var i, j, k;
+
+    for (i = 0; i < arr.length; i++) {
+       if (arr[i].nombre == val.toUpperCase()) {
+           var filtered = arr.filter(function(el){ return el.nombre === val.toUpperCase()});
+           var colectores = filtered[0].colectores;
+
+           for(k=0; k<colectores.length; k++) {
+               $(document).ready(function() {
+                   $("#ul-list").append("<li><a id='item-parent' data-colector-length='"+colectores.length+"' data-id='"+colectores[k].id+"' data-name='"+colectores[k].nombre+"'> " + colectores[k].nombre + "</a></li>");
+               });
+           }
+
+           return;
+       }
+
+       // para pintar integradores que no tienen colectores
+       if (arr[i].nombre.substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+           //para pintar los intregadores que no tienen colectores
+           if (arr[i].colectores.length < 1) {
+               $(document).ready(function() {
+                   $("#ul-list").append("<li><a id='item-parent' data-colector-length='"+arr[i].colectores.length+"' data-id='"+arr[i].id+"' data-name='"+arr[i].nombre+"'> " + arr[i].nombre + "</a></li>");
+               });
+           }
+       }
+
+       //para pintar colectores agrupados
+       for (j=0; j<arr[i].colectores.length; j++) {
+           if (arr[i].colectores[j].nombre.substr(0, val.length).toUpperCase() == val.toUpperCase()) { 
+               $(document).ready(function() {
+                   $("#ul-list").append("<li id='item-let-"+ arr[i].id +"'><a id='item-parent' data-colector-length='"+arr[i].colectores.length+"' data-id='"+arr[i].id+"' data-name='"+arr[i].nombre+"'> " + arr[i].nombre + "</a></li>");
+               });
+                       
+               if (arr[i].colectores.length > 0 ) {
+                  $(document).ready(function() {
+                   $("#item-let-"+arr[i].id).append("<ul><li><a id='item-child' data-id='"+arr[i].colectores[j].id+"' data-name='"+arr[i].colectores[j].nombre+"'> " + arr[i].colectores[j].nombre + "</a></li></ul>");
+                  });
+               }
+           }
+       }
+    }
+
+    if (i == arr.length) {
+        loadTreeViewList(); 
+    }
+}
+
+function autocomplete(inp, arr){
+    var currentFocus;
+    arr = (arr == null) ? data : arr;
+    
+    $(document).on("click", function(e) {
+        if(e.target.id === "") {
+           closeAllLists();
+           return false;
+        }
+
+    });
+
+    $("#myInput").unbind("click").click(function(e) {
+        var treeDivContent, b, c, treeParentUl, listRer, val = this.value;
+        closeAllLists();
+
+        currentFocus = -1;
+        treeDivContent = document.createElement("DIV");
+        treeDivContent.setAttribute("id", this.id + "autocomplete-list");
+        treeDivContent.setAttribute("class", "autocomplete-items tree");
+        this.parentNode.appendChild(treeDivContent);
+        treeParentUl = document.createElement("ul");
+        treeParentUl.setAttribute("id", "ul-list");
+        treeDivContent.appendChild(treeParentUl);
+        listRer = document.getElementById("ul-list").value;
+        creationElementHTML(arr, val);
+    });
+
+    inp.addEventListener("input", function (e) {
+        var treeDivContent, b, c, treeParentUl, listRer, val = this.value;
+        closeAllLists();
+
+        currentFocus = -1;
+        treeDivContent = document.createElement("DIV");
+        treeDivContent.setAttribute("id", this.id + "autocomplete-list");
+        treeDivContent.setAttribute("class", "autocomplete-items tree");
+        this.parentNode.appendChild(treeDivContent);
+        treeParentUl = document.createElement("ul");
+        treeParentUl.setAttribute("id", "ul-list");
+        treeDivContent.appendChild(treeParentUl);
+        listRer = document.getElementById("ul-list").value;
+        creationElementHTML(arr, val);           
+    });
+
+    function closeAllLists(element) {
+        var ref = document.getElementsByClassName("autocomplete-items");
+
+        for (var i = 0; i < ref.length; i++) {
+            if (element != ref[i] && element != inp) {
+                ref[i].parentNode.removeChild(ref[i]);
+            }
+        }
+    }
+}
+
+autocomplete(document.getElementById("myInput"), data);
+
+$(document).on('click', '#item-parent', function(){
+    $('#myInput').val($(this).attr('data-name'));
+    alert($(this).attr('data-name')+' '+$(this).attr('data-id'));
+});
+
+$(document).on('click', '#item-child', function(){
+    $('#myInput').val($(this).attr('data-name'));
+    alert($(this).attr('data-name')+' '+$(this).attr('data-id'));
+});
+
+
+function loadTreeViewList(){
+    $( document ).ready( function( ) {
+        $('.tree li' ).each( function() {
+            if($( this ).children( 'ul' ).length > 0 ) {
+                $( this ).addClass( 'parent' );   
+            }
+        });
+        
+        $('.tree li.parent > a').click( function( ) {
+            $( this ).parent().toggleClass( 'active' );
+            $( this ).parent().children( 'ul' ).slideToggle( 'fast' );
+        });
+        
+        $( '#all' ).click( function() {
+            $('.tree li').each( function() {
+                $( this ).toggleClass( 'active' );
+                $( this ).children( 'ul' ).slideToggle( 'fast' );
+            });
+        });
+
+        $('.tree li').each( function() {
+                $( this ).toggleClass( 'active' );
+                $( this ).children( 'ul' ).slideToggle( 'fast' );
+            });
+            
+    });
+}
+
+			   <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="http://code.jquery.com/jquery-1.7.2.min.js" type="text/javascript" > </script>
+
+    <style>
+        input {
+            padding: 8px;
+            font-size: 14px;
+            border: 2px solid black;
+            width: 250px;
+        }
+
+        .container-autocomplete {
+            width: 100%; 
+            height: 150px; 
+            background-color: #e6eaef;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .autocomplete {
+            position: relative;
+            display: inline-block;
+        }
+
+        .autocomplete-items {
+            background-color: white;
+            position: absolute;
+            border: 1px solid #d4d4d4;
+            /*border-bottom: none;*/
+            border-top: none;
+            z-index: 999;
+            /*position the autocomplete items to be the same width as the container:*/
+            top: 100%;
+            left: 0;
+            right: 0;
+        }
+
+        .autocomplete-items div {
+            padding: 10px;
+            cursor: pointer;
+            background-color: #fff;
+            border-bottom: 1px solid #d4d4d4;
+            display:block;
+        }
+
+        .autocomplete-items div:hover {
+            background-color: #e9e9e9;
+        }
+    </style>
+
+</head>
+<body>
+
+    <div class="container-autocomplete">
+        <div class="autocomplete tree">
+            <input type="text" id="myInput" placeholder="servicio">
+        </div>
+    </div>
+    
+    <script src="js/main.js" type="text/javascript"></script>
+</body>
+</html>
+
+
+
