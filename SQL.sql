@@ -637,4 +637,72 @@ function loadTreeViewList(){
 </html>
 
 
+create table Users(
+	Id int not null primary key identity(1,1),
+	Name varchar(50),
+	LastName varchar(50)
+)
+
+create table Survey(
+	Id int not null primary key identity(1,1),
+	Name varchar(50)
+)
+
+create table Question(
+	Id int not null primary key identity(1,1),
+	SurveyId int not null,
+	Title varchar(50)
+)
+
+ALTER TABLE Question
+ADD FOREIGN KEY (SurveyId) REFERENCES Survey(Id);
+
+
+create table Answer(
+	Id int not null primary key identity(1,1),
+	QuestionId int not null,
+	Title varchar(50),
+	Points int
+)
+
+ALTER TABLE Answer
+ADD FOREIGN KEY (QuestionId) REFERENCES Question(Id);
+
+create table AnswerUser(
+	Id int not null primary key identity(1,1),
+	SurveyId int not null,
+	QuestionId int not null,
+	AswerId int not null,
+	UserId int not null,
+)
+
+ALTER TABLE AnswerUser
+ADD FOREIGN KEY (SurveyId) REFERENCES Survey(Id);
+
+ALTER TABLE AnswerUser
+ADD FOREIGN KEY (QuestionId) REFERENCES Question(Id);
+
+ALTER TABLE AnswerUser
+ADD FOREIGN KEY (AswerId) REFERENCES Answer(Id);
+
+ALTER TABLE AnswerUser
+ADD FOREIGN KEY (UserId) REFERENCES Users(Id);
+
+create table SurveryUser(
+	Id int not null primary key identity(1,1),
+	UserId int not null,
+	SurveyId int not null,
+	Dates varchar(20),
+	Result varchar(10)
+)
+
+ALTER TABLE SurveryUser
+ADD FOREIGN KEY (UserId) REFERENCES Users(Id);
+
+ALTER TABLE SurveryUser
+ADD FOREIGN KEY (SurveyId) REFERENCES Survey(Id);
+
+
+
+
 
