@@ -703,6 +703,29 @@ ALTER TABLE SurveryUser
 ADD FOREIGN KEY (SurveyId) REFERENCES Survey(Id);
 
 
+create table Estudiantes(
+	Id int not null primary key identity(1,1),
+	Nombre varchar(60) not null,
+	FechaNacimiento datetime
+)
+
+create table Asignaciones(
+	Id int not null primary key identity(1,1),
+	Nombre varchar(60) not null
+);
+
+create table AsignacionEstudiante(
+	Id int not null primary key identity(1, 1),
+	IdAsignacion int not null ,
+	IdEstudiente int not null
+)
+
+ALTER TABLE AsignacionEstudiante
+ADD FOREIGN KEY (IdAsignacion) REFERENCES Asignaciones(Id);
+ALTER TABLE AsignacionEstudiante
+ADD FOREIGN KEY (IdEstudiente) REFERENCES Estudiantes(Id);
+
+
 
 
 
